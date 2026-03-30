@@ -1,0 +1,23 @@
+server:
+  host: "127.0.0.1"
+  port: 3001
+  base_url: "https://blog.example.com"    # 用于生成订阅链接
+
+auth:
+  totp_secret: "BASE32SECRETHERE"          # 运行 uv run python scripts/setup_totp.py 生成
+  session_duration_hours: 24
+
+proxy:
+  protocol: vless
+  uuid: "YOUR-UUID-HERE"
+  domain: "your-cdn-domain.com"            # CDN 域名（节点 SNI 用）
+  port: 443
+  path: "/"
+  network: ws
+  tls: true
+  door_key: "YOUR-DOOR-KEY-HERE"   # 可选，用于绕过 CDN/WAF 的请求头验证
+
+subscription:
+  top_n: 10
+  cache_duration_hours: 24
+  storage_path: "data/subscriptions"       # YAML 文件保存路径，可映射到 GDrive

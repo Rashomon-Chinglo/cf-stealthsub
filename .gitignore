@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# UV
+uv.lock
+
+# Config (contains secrets)
+config.yaml
+
+# Runtime data
+data/subscriptions/*.yaml
+*.csv
+
+# IDE
+.vscode/
+.idea/

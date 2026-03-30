@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 CDN 边缘计算的一些思考 — 技术随笔</title>
+    <meta name="description" content="深入探讨 CDN 边缘计算的架构设计与性能优化策略">
+    <link rel="stylesheet" href="/optimize/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+</head>
+<body>
+
+    <!-- Phase 1: Disguised Blog -->
+    <div id="article-view">
+        <article>
+            <header class="article-header">
+                <h1>关于 CDN 边缘计算的一些思考</h1>
+                <div class="article-meta">
+                    <span>2025-12-15</span>
+                    <span>·</span>
+                    <span>约 8 分钟阅读</span>
+                </div>
+            </header>
+            <div class="article-body">
+                <p>近年来，随着云计算基础设施的全球化部署，CDN（内容分发网络）的角色已经从单纯的静态资源缓存，演变为承载复杂计算逻辑的边缘计算平台。Cloudflare Workers、AWS CloudFront Functions、Vercel Edge Functions 等产品的出现，标志着边缘计算正在成为现代 Web 架构的重要组成部分。</p>
+                <h2>边缘节点的选择策略</h2>
+                <p>在传统的 CDN 架构中，用户请求会被 DNS 解析到最近的 PoP（Point of Presence）节点。然而，"最近"并不总是意味着"最快"。网络拓扑的复杂性使得地理距离与网络延迟之间的关系并非线性的。</p>
+                <p>以 Cloudflare 为例，其全球网络覆盖了超过 300 个城市的数据中心。当用户发起请求时，Anycast 路由会将流量导向最近的节点。但在实际场景中，由于 ISP 路由策略、跨运营商互联带宽、以及临时的网络拥塞等因素，某些看似较远的节点可能反而提供更好的性能。</p>
+                <pre><code># 一个简单的延迟测试脚本示例
+import asyncio
+import aiohttp
+
+async def test_latency(ip: str) -> float:
+    async with aiohttp.ClientSession() as session:
+        start = asyncio.get_event_loop().time()
+        async with session.get(f"http://{ip}/cdn-cgi/trace") as resp:
+            await resp.text()
+        return (asyncio.get_event_loop().time() - start) * 1000</code></pre>
+                <h2>性能优化的多维考量</h2>
+                <p>边缘计算的性能优化需要从多个维度进行考量：首先是冷启动时间（Cold Start），对于 V8 Isolate 模型（如 Cloudflare Workers），冷启动通常在 5ms 以内，远优于传统的容器化方案。其次是执行时间限制，不同平台有不同的 CPU 时间上限，这直接影响了可以在边缘运行的计算复杂度。</p>
+                <p>另一个经常被忽视的因素是 TLS 握手的开销。当边缘节点需要回源（Origin Fetch）时，与源站之间的 TLS 握手可能占据了请求总延迟的相当比例。使用会话复用（Session Resumption）和预建连接池可以有效缓解这一问题。<span id="cpu-icon" title="Performance Monitor">⚙</span></p>
+                <h2>实践中的挑战</h2>
+                <p>边缘计算在实践中也面临诸多挑战。数据一致性问题首当其冲：当计算逻辑分散在数百个边缘节点时，如何保证共享状态的一致性成为难题。Cloudflare 的 Durable Objects 提供了一种解决方案，通过将特定的状态绑定到单个边缘节点，在保证一致性的同时尽量减少延迟。</p>
+                <p>调试和可观测性也是值得关注的领域。由于请求可能被路由到世界各地的不同节点，传统的集中式日志收集方案在边缘场景下可能产生显著的延迟和成本。分层采样和边缘聚合是目前比较实用的策略。</p>
+                <p>总的来说，边缘计算仍处于快速发展阶段，值得持续关注。在选择具体方案时，建议根据实际的流量模式和性能需求，进行充分的测试和基准评估。</p>
+            </div>
+        </article>
+    </div>
+
+    <!-- Phase 2: Terminal Auth -->
+    <div id="terminal-view" class="hidden term-screen">
+        <div id="terminal-output"></div>
+        <div id="terminal-input-line" class="t-input-line hidden">
+            <span class="prompt">$ </span>
+            <input id="code-input" type="text"
+                   maxlength="6" inputmode="numeric"
+                   autocomplete="off" spellcheck="false"
+                   placeholder="______">
+        </div>
+    </div>
+
+    <!-- Phase 3: Optimizer (same terminal style) -->
+    <div id="optimizer-view" class="hidden term-screen">
+        <div id="opt-output"></div>
+    </div>
+
+    <script type="module" src="/optimize/js/app.js?v=6.6"></script>
+</body>
+</html>

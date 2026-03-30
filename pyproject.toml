@@ -1,0 +1,16 @@
+[project]
+name = "cf-stealthsub"
+version = "0.2.0"
+description = "A stealthy, self-hosted Cloudflare IP speed testing & VLESS subscription generator."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "pyotp>=2.9.0",
+    "python-multipart>=0.0.22",
+]
+
+[project.scripts]
+setup-totp = "scripts.setup_totp:main"
