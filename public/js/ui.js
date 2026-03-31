@@ -2,6 +2,9 @@
  * ui.js — Pure terminal text output. No fancy DOM elements.
  */
 
+export const CONSOLE_TITLE = 'cf-stealthsub // secure access console';
+export const CONSOLE_DIVIDER = '─'.repeat(50);
+
 /**
  * @typedef {'article' | 'terminal'} ViewName
  * @typedef {{
@@ -206,8 +209,16 @@ export function printDownloadButton(text, url) {
  * @returns {void}
  */
 export function printOptHeader() {
-    printLine('cf-stealthsub v0.2.0', 'accent');
-    printLine('─'.repeat(50), 'dim');
+    printConsoleBanner();
+}
+
+/**
+ * Render the shared terminal banner.
+ * @returns {void}
+ */
+export function printConsoleBanner() {
+    printLine(CONSOLE_TITLE, 'accent');
+    printLine(CONSOLE_DIVIDER, 'dim');
     printLine('');
 }
 

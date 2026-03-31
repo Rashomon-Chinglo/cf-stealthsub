@@ -1,6 +1,5 @@
 /* ============================================================
-   CF IP Optimizer — Minimal Terminal Aesthetic
-   Phase 1: Disguised blog  |  Phase 2+3: Pure black terminal
+   Disguised article + terminal console
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
@@ -13,12 +12,13 @@
 
 :root {
     --bg: #000;
-    --fg: #ccc;
-    --dim: #666;
+    --fg: #d6d6d6;
+    --dim: #6f6f6f;
     --accent: #0f0;
     --warn: #ff0;
     --bad: #f44;
     --good: #0f0;
+    --line: #2a2a2a;
     --font-mono: 'JetBrains Mono', monospace;
     --font-sans: 'Noto Sans SC', system-ui, sans-serif;
 }
@@ -121,6 +121,26 @@ body {
     word-break: break-all;
 }
 
+.term-screen,
+.term-screen input,
+.term-screen button,
+.term-screen a {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: none;
+    text-rendering: optimizeSpeed;
+}
+
+.term-screen input,
+.term-screen button {
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 /* Terminal output lines */
 .t-line { color: var(--fg); }
 .t-line.dim { color: var(--dim); }
@@ -188,10 +208,8 @@ body {
 }
 .sub-line input {
     background: transparent;
-    border: 1px solid #333;
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: 12px;
+    border: 1px solid var(--line);
+    color: var(--fg);
     padding: 4px 8px;
     width: 50ch;
     max-width: 90%;
@@ -200,10 +218,8 @@ body {
 .sub-line input:focus { border-color: var(--accent); }
 .sub-line button {
     background: transparent;
-    border: 1px solid #333;
+    border: 1px solid var(--line);
     color: var(--fg);
-    font-family: var(--font-mono);
-    font-size: 12px;
     padding: 4px 10px;
     cursor: pointer;
     margin-left: 4px;
@@ -263,14 +279,13 @@ body {
 
 .t-dl-btn {
     display: inline-block;
-    color: var(--accent);
+    color: var(--fg);
     text-decoration: none;
     cursor: pointer;
-    font-weight: bold;
     padding: 2px 0;
 }
 .t-dl-btn:hover {
-    color: #fff;
+    color: var(--accent);
     background: rgba(0, 255, 0, 0.1);
 }
 .t-dl-btn .dl-icon {
@@ -293,8 +308,8 @@ body.term-active::before { display: none; }
     max-width: 100%;
     margin: 16px 0;
     padding: 32px 16px;
-    border: 1px dashed var(--dim);
-    color: var(--dim);
+    border: 1px dashed var(--line);
+    color: var(--fg);
     text-align: center;
     transition: all 0.2s ease;
     cursor: pointer;

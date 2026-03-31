@@ -2,7 +2,7 @@
  * upload.js — Optimizer UI and CSV upload flow.
  */
 
-import * as ui from './ui.js?v=6.8';
+import * as ui from './ui.js?v=6.9';
 
 const RESULTS_ENDPOINT = '/api/results';
 const DOWNLOAD_OPTIONS = [
@@ -45,15 +45,15 @@ export async function initUploadPhase() {
     }
 
     ui.printOptHeader();
-    ui.printLine('> Permission check complete', 'ok');
-    ui.printLine('please download CloudflareSpeedTest native scanner:', 'dim');
+    ui.printLine('> Access confirmed', 'ok');
+    ui.printLine('download CloudflareSpeedTest:', 'dim');
 
     DOWNLOAD_OPTIONS.forEach(([label, url]) => {
         ui.printDownloadButton(label, url);
     });
 
     ui.printLine('');
-    ui.printLine('run the scanner in your terminal. it will generate a result.csv.', 'dim');
+    ui.printLine('run it locally. it will generate result.csv.', 'dim');
     ui.printLine('');
 
     const dropZone = ui.renderUploadArea();

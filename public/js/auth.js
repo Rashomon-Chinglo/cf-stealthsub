@@ -2,12 +2,12 @@
  * auth.js — Authentication logic loaded on demand.
  */
 
-import * as ui from './ui.js?v=6.8';
+import * as ui from './ui.js?v=6.9';
 
 const API_BASE = '/api';
 const VERIFY_SESSION_ENDPOINT = `${API_BASE}/auth/verify`;
 const LOGIN_ENDPOINT = `${API_BASE}/auth/login`;
-const UPLOAD_MODULE_PATH = './upload.js?v=6.8';
+const UPLOAD_MODULE_PATH = './upload.js?v=6.9';
 
 let uploadModuleLoader = null;
 let hasBoundCodeInput = false;
@@ -44,11 +44,9 @@ export async function checkSavedSession(alreadyVerified = false) {
         ui.transitionTo('terminal');
         ui.clearTerminalOutput();
         ui.hideCodeInput();
-        ui.printLine('CF-IP-OPTIMIZER v0.2.0', 'accent');
-        ui.printLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'dim');
-        ui.printLine('');
+        ui.printConsoleBanner();
         ui.printLine('> Existing session restored', 'ok');
-        ui.printLine('> Continuing to optimizer module...');
+        ui.printLine('> Loading workspace...');
         ui.printLine('');
         await openOptimizer();
         return true;
@@ -93,15 +91,17 @@ async function openOptimizer() {
  * @returns {Promise<void>}
  */
 async function showTerminalIntro() {
-    await ui.typeLines([
-        'CF-IP-OPTIMIZER v0.2.0',
-        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    const introLines = [
+        ui.CONSOLE_TITLE,
+        ui.CONSOLE_DIVIDER,
         '',
-        '> Initializing secure connection...',
-        '> Loading authentication module on demand...',
-        '> Waiting for verification code...',
+        '> Establishing secure session...',
+        '> Loading auth layer on demand...',
+        '> Waiting for one-time verification code...',
         '',
-    ], 30);
+    ];
+
+    await ui.typeLines(introLines, 30);
 
     ui.showCodeInput();
     bindCodeInput();
@@ -158,7 +158,7 @@ async function submitCode(code) {
                 '╚══════════════════════════════╝',
                 '',
                 `> Session valid for: ${Math.floor(loginPayload.expires_in / 3600)}h`,
-                '> Loading optimizer module...',
+                '> Loading workspace...',
             ], 25);
 
             await ui.sleep(800);
