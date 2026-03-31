@@ -2,7 +2,7 @@
  * upload.js — Optimizer UI and CSV upload flow.
  */
 
-import * as ui from './ui.js?v=6.9';
+import * as ui from './ui.js?v=7.0';
 
 const RESULTS_ENDPOINT = '/api/results';
 const DOWNLOAD_OPTIONS = [

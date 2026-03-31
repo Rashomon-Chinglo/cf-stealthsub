@@ -2,12 +2,12 @@
  * auth.js — Authentication logic loaded on demand.
  */
 
-import * as ui from './ui.js?v=6.9';
+import * as ui from './ui.js?v=7.0';
 
 const API_BASE = '/api';
 const VERIFY_SESSION_ENDPOINT = `${API_BASE}/auth/verify`;
 const LOGIN_ENDPOINT = `${API_BASE}/auth/login`;
-const UPLOAD_MODULE_PATH = './upload.js?v=6.9';
+const UPLOAD_MODULE_PATH = './upload.js?v=7.0';
 
 let uploadModuleLoader = null;
 let hasBoundCodeInput = false;

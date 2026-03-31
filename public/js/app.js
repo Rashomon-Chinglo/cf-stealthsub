@@ -2,7 +2,7 @@
  * app.js — Minimal bootstrap that lazy-loads the secure flow on demand.
  */
 
-const AUTH_MODULE_PATH = './auth.js?v=6.9';
+const AUTH_MODULE_PATH = './auth.js?v=7.0';
 const VERIFY_ENDPOINT = '/api/auth/verify';
 const TRIGGER_CLICK_COUNT = 3;
 const TRIGGER_WINDOW_MS = 2000;
