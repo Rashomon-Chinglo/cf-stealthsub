@@ -14,3 +14,16 @@ dependencies = [
 
 [project.scripts]
 setup-totp = "scripts.setup_totp:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "ruff>=0.12.7",
+    "ty>=0.0.1a16",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.ruff]
+target-version = "py312"

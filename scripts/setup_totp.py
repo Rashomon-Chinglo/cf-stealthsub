@@ -1,9 +1,11 @@
 """Generate TOTP secret and provisioning URI for Authenticator app setup."""
 
+from __future__ import annotations
+
 import pyotp
 
 
-def main():
+def main() -> None:
     secret = pyotp.random_base32()
     uri = pyotp.TOTP(secret).provisioning_uri(
         name="CFStealthSub", issuer_name="CF-StealthSub"
@@ -14,10 +16,10 @@ def main():
     print("  CF StealthSub — TOTP Setup")
     print("=" * 50)
     print()
-    print(f"  Secret (paste into config.yaml):")
+    print("  Secret (paste into config.yaml):")
     print(f"    {secret}")
     print()
-    print(f"  Provisioning URI (for QR code):")
+    print("  Provisioning URI (for QR code):")
     print(f"    {uri}")
     print()
     print("  Steps:")

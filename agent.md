@@ -1,21 +1,80 @@
-# Agent Context: CF-StealthSub
+# CF-StealthSub Agent Notes
 
-## Project Purpose
-CF-StealthSub is a self-hosted tool enabling users to securely test Cloudflare IPs locally and upload them to a disguised backend to auto-generate Clash/VLESS proxy subscriptions. The primary mechanism replaces fragile "browser side pings" with robust native `cfst` client scans + CSV uploads.
+## What This Project Is
 
-## Tech Stack
-- **Backend Model**: FastAPI + Uvicorn
-- **Package Manager**: `uv`
-- **Frontend**: Vanilla Javascript (ES6 modules), Raw CSS (no React/Vue/Tailwind)
-- **Deployment**: PM2 (No Docker or Systemd necessary)
+自托管 Cloudflare IP 优选与订阅生成工具。
 
-## Core Components
-- `/server/routes/api.py`: Core endpoint `POST /results` accepting a multipart `UploadFile` (result.csv).
-- `/server/utils/subscription.py`: Generates the resulting YAML config. Note: `x-door-key` header is pulled dynamically from `config.yaml` (`config.proxy.door_key`) to pass CDN verification.
-- `/public/`: Contains the stealth front-end. The `index.html` initiates a faux-blog view. The UI unlocks via triple-clicking the settings/gear icon and providing a TOTP code.
-- `/data/subscriptions/`: (or whatever `config.yaml` targets globally like `/mnt/gdrive/`): Used for storing the ephemeral Clash subscription YAML blobs before fetching.
+用户流程：
 
-## Security Constraints & Rules
-1. **Never Hardcode Secrets**: Any token, API key, Header secret (like WAF bypass), or UUID MUST exist only in `config.yaml`.
-2. **Git Ignore**: Never let `data/`, `result.csv`, `.venv`, or `config.yaml` to be tracked by Git.
-3. **No Heavy Frameworks**: Keep the Frontend architecture raw (`app.js`, `ui.js`, `upload.js`). Do not introduce external libraries or NPM build steps for the frontend.
+1. 访问伪装文章页
+2. 三击齿轮图标进入隐藏终端
+3. 输入 TOTP 验证码
+4. 下载 `CloudflareSpeedTest`
+5. 在本地测速得到 `result.csv`
+6. 上传 CSV
+7. 服务端生成完整 Clash YAML 并给出订阅链接
+
+## Stack
+
+- Backend: FastAPI + Uvicorn
+- Package manager: `uv`
+- Frontend: Vanilla JS modules + raw CSS
+- Runtime state: in-memory session / rate-limit + file-based subscription storage
+
+## Important Files
+
+- `server/main.py`: app entry
+- `server/config.py`: config models and loader
+- `server/routes/auth.py`: TOTP login, secure cookie session
+- `server/routes/api.py`: CSV upload, parsing, YAML generation
+- `server/routes/sub.py`: subscription download
+- `server/utils/subscription.py`: complete Clash config generator
+- `server/utils/store.py`: YAML persistence and subscription index
+- `public/index.html`: disguised article + hidden terminal
+- `public/js/auth.js`: auth flow
+- `public/js/upload.js`: upload/result rendering
+- `public/js/ui.js`: terminal output helpers
+
+## Rules For AI Changes
+
+- Do not introduce frontend frameworks, bundlers, or npm build tooling.
+- Do not hardcode UUIDs, secrets, `door_key`, or deployment domains.
+- Preserve the disguised-entry + terminal-style interaction model.
+- Keep the output a complete Clash YAML, not a partial `proxies` snippet.
+- Prefer small, local, readable changes over abstraction-heavy rewrites.
+
+## Security Assumptions
+
+- This project is designed for self-use or a very small trusted group.
+- `server.trusted_proxies` controls whether proxy headers are trusted.
+- Auth now uses HttpOnly cookie sessions; avoid reintroducing token storage in browser JS.
+- Upload size and content-type restrictions are intentional; keep them unless explicitly changed.
+
+## Human Deployment Reference
+
+For human-facing setup and deployment instructions, read `README.md`.
+
+Short version:
+
+```bash
+uv sync
+cp config.example.yaml config.yaml
+uv run python scripts/setup_totp.py
+uv run uvicorn server.main:app --host 127.0.0.1 --port 3001
+```
+
+Production usually means:
+
+- HTTPS reverse proxy in front
+- correct `server.base_url`
+- correct `server.trusted_proxies`
+- `auth.cookie_secure: true`
+
+## Validation
+
+Use:
+
+```bash
+uv run ty check
+uv run ruff check
+```

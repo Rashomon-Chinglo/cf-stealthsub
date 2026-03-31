@@ -47,7 +47,7 @@ async def test_latency(ip: str) -> float:
         </article>
     </div>
 
-    <!-- Phase 2: Terminal Auth -->
+    <!-- Terminal View: auth + optimizer in a single old-school screen -->
     <div id="terminal-view" class="hidden term-screen">
         <div id="terminal-output"></div>
         <div id="terminal-input-line" class="t-input-line hidden">
@@ -59,11 +59,6 @@ async def test_latency(ip: str) -> float:
         </div>
     </div>
 
-    <!-- Phase 3: Optimizer (same terminal style) -->
-    <div id="optimizer-view" class="hidden term-screen">
-        <div id="opt-output"></div>
-    </div>
-
-    <script type="module" src="/optimize/js/app.js?v=6.6"></script>
+    <script type="module" src="/optimize/js/app.js?v=6.8"></script>
 </body>
 </html>

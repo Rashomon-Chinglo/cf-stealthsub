@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get("/{key}")
-async def get_subscription(key: str):
+async def get_subscription(key: str) -> Response:
     """Serve a subscription YAML file by its key.
 
     No authentication required — the key itself acts as a bearer token.

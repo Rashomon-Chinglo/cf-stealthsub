@@ -2,10 +2,16 @@ server:
   host: "127.0.0.1"
   port: 3001
   base_url: "https://blog.example.com"    # 用于生成订阅链接
+  trusted_proxies:
+    - "127.0.0.1/32"                      # 仅当请求来自这些代理地址时才信任 X-Forwarded-For / CF-Connecting-IP
+    - "::1/128"
 
 auth:
   totp_secret: "BASE32SECRETHERE"          # 运行 uv run python scripts/setup_totp.py 生成
   session_duration_hours: 24
+  session_cookie_name: "cf_session"
+  cookie_secure: true                      # 本地 http 调试时可改为 false
+  cookie_samesite: "strict"
 
 proxy:
   protocol: vless
@@ -21,3 +27,4 @@ subscription:
   top_n: 10
   cache_duration_hours: 24
   storage_path: "data/subscriptions"       # YAML 文件保存路径，可映射到 GDrive
+  max_upload_size_mb: 5                    # 限制上传 CSV 大小，避免异常大文件占满内存

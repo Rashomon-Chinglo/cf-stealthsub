@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Final
 
 from fastapi import HTTPException
 
@@ -17,15 +18,16 @@ class IPRecord:
 # {ip: IPRecord}
 _limits: dict[str, IPRecord] = {}
 
-MAX_FAILURES = 5
-BLOCK_DURATION = 1800  # 30 minutes
+MAX_FAILURES: Final[int] = 5
+BLOCK_DURATION_SECONDS: Final[int] = 1800
 
 
 def check_rate_limit(ip: str) -> None:
     """Raise 429 if IP is currently blocked."""
     record = _limits.get(ip)
-    if record and record.blocked_until and record.blocked_until > time.time():
-        retry_after = int(record.blocked_until - time.time())
+    now = time.time()
+    if record and record.blocked_until and record.blocked_until > now:
+        retry_after = int(record.blocked_until - now)
         raise HTTPException(
             status_code=429,
             detail={
@@ -40,7 +42,7 @@ def record_failure(ip: str) -> int:
     rec = _limits.setdefault(ip, IPRecord())
     rec.failures += 1
     if rec.failures >= MAX_FAILURES:
-        rec.blocked_until = time.time() + BLOCK_DURATION
+        rec.blocked_until = time.time() + BLOCK_DURATION_SECONDS
     return rec.failures
 
 
@@ -60,3 +62,8 @@ def cleanup_expired() -> int:
     for k in expired:
         del _limits[k]
     return len(expired)
+
+
+def remaining_attempts(failures: int) -> int:
+    """Return the remaining attempts before the next block."""
+    return max(0, MAX_FAILURES - failures)

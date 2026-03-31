@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -18,7 +19,6 @@ from server.routes.sub import router as sub_router
 from server.utils.session import cleanup_expired as cleanup_sessions
 from server.utils.store import cleanup_expired as cleanup_subs, init_store
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -28,9 +28,8 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifecycle manager."""
-    # --- Startup ---
     config = load_config()
     app.state.config = config
     init_store(config.subscription.storage_path)
@@ -41,10 +40,9 @@ async def lifespan(app: FastAPI):
         config.server.base_url,
     )
 
-    # Background cleanup task
-    async def periodic_cleanup():
+    async def periodic_cleanup() -> None:
         while True:
-            await asyncio.sleep(600)  # every 10 minutes
+            await asyncio.sleep(600)
             s = cleanup_sessions()
             r = cleanup_rate_limits()
             f = cleanup_subs(config.subscription.storage_path)
@@ -58,7 +56,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # --- Shutdown ---
     task.cancel()
     try:
         await task
@@ -67,7 +64,6 @@ async def lifespan(app: FastAPI):
     logger.info("Server shut down cleanly")
 
 
-# Create app
 app = FastAPI(
     lifespan=lifespan,
     docs_url=None,
@@ -75,19 +71,16 @@ app = FastAPI(
     openapi_url=None,
 )
 
-# Middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
-# Static files (disguised blog + optimizer UI)
 app.mount("/optimize", StaticFiles(directory="public", html=True), name="optimize")
 
-# API routes
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(api_router, prefix="/api")
 app.include_router(sub_router, prefix="/sub")
 
 
 @app.get("/health")
-async def health():
+async def health() -> dict[str, str]:
     """Health check endpoint for monitoring."""
     return {"status": "ok"}

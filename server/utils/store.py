@@ -12,6 +12,7 @@ import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypedDict
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,13 @@ _index: dict[str, SubEntry] = {}
 _session_keys: dict[str, str] = {}  # {session_id: key}
 
 
+class SubscriptionMeta(TypedDict):
+    key: str
+    session_id: str
+    created_at: int
+    expires_at: int
+
+
 def init_store(storage_path: str) -> None:
     """Initialize storage directory and rebuild index from existing files."""
     path = Path(storage_path)
@@ -42,7 +50,7 @@ def init_store(storage_path: str) -> None:
 
     for f in path.glob("*.yaml"):
         try:
-            meta = _parse_yaml_meta(f)
+            meta = parse_yaml_meta(f)
             if not meta:
                 continue
 
@@ -58,7 +66,6 @@ def init_store(storage_path: str) -> None:
                 _index[entry.key] = entry
                 _session_keys[entry.session_id] = entry.key
             else:
-                # Clean up expired files on startup
                 f.unlink(missing_ok=True)
                 logger.debug("Removed expired file: %s", f.name)
 
@@ -80,7 +87,6 @@ def save_yaml(
     expires_at = now + duration_hours * 3600
     filepath = Path(storage_path) / f"{key}.yaml"
 
-    # Embed metadata as YAML comment header
     header = (
         f"# cf-optimizer-meta\n"
         f"# key: {key}\n"
@@ -99,7 +105,6 @@ def save_yaml(
         filepath=filepath,
     )
 
-    # If this session already has an old subscription, remove it
     old_key = _session_keys.get(session_id)
     if old_key and old_key in _index:
         old_entry = _index.pop(old_key)
@@ -147,18 +152,15 @@ def cleanup_expired(storage_path: str) -> int:
     for k in expired_keys:
         entry = _index.pop(k)
         entry.filepath.unlink(missing_ok=True)
-        # Clean session mapping
-        for sid, skey in list(_session_keys.items()):
-            if skey == k:
-                del _session_keys[sid]
+        _session_keys.pop(entry.session_id, None)
     if expired_keys:
         logger.info("Cleaned up %d expired subscriptions", len(expired_keys))
     return len(expired_keys)
 
 
-def _parse_yaml_meta(filepath: Path) -> dict | None:
+def parse_yaml_meta(filepath: Path) -> SubscriptionMeta | None:
     """Parse metadata from YAML file comment header."""
-    meta: dict = {}
+    meta: dict[str, str | int] = {}
     with open(filepath, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -172,4 +174,12 @@ def _parse_yaml_meta(filepath: Path) -> dict | None:
                     meta[k] = int(v)
                 else:
                     meta[k] = v
-    return meta if "key" in meta else None
+    required_keys = {"key", "session_id", "created_at", "expires_at"}
+    if not required_keys.issubset(meta):
+        return None
+    return SubscriptionMeta(
+        key=str(meta["key"]),
+        session_id=str(meta["session_id"]),
+        created_at=int(meta["created_at"]),
+        expires_at=int(meta["expires_at"]),
+    )
