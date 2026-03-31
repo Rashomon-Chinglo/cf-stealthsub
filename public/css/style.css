@@ -148,6 +148,9 @@ body {
 .t-line.err { color: var(--bad); }
 .t-line.warn { color: var(--warn); }
 .t-line.accent { color: var(--accent); }
+.t-reveal {
+    animation: terminal-reveal 180ms steps(12, end);
+}
 
 /* Input line */
 .t-input-line {
@@ -321,4 +324,16 @@ body.term-active::before { display: none; }
     border-color: var(--accent);
     color: var(--accent);
     background: rgba(0, 255, 0, 0.05);
+}
+
+@keyframes terminal-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

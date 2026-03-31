@@ -44,16 +44,17 @@ export async function initUploadPhase() {
         return;
     }
 
-    ui.printOptHeader();
-    ui.printLine('> Access confirmed', 'ok');
-    ui.printLine('download CloudflareSpeedTest:', 'dim');
+    await ui.typeLine('> Access confirmed', 18, 'ok');
+    await ui.typeLine('download CloudflareSpeedTest:', 18);
+    await ui.sleep(120);
 
     DOWNLOAD_OPTIONS.forEach(([label, url]) => {
         ui.printDownloadButton(label, url);
     });
 
+    await ui.sleep(120);
     ui.printLine('');
-    ui.printLine('run it locally. it will generate result.csv.', 'dim');
+    await ui.typeLine('run it locally. it will generate result.csv.', 18);
     ui.printLine('');
 
     const dropZone = ui.renderUploadArea();

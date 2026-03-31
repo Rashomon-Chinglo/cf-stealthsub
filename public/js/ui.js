@@ -111,10 +111,11 @@ export async function typeLines(lines, speed = 25) {
  * Type a single line character by character.
  * @param {string} text
  * @param {number} [speed=25]
+ * @param {string} [cls='']
  * @returns {Promise<void>}
  */
-export async function typeLine(text, speed = 25) {
-    const line = appendTerminalNode(createTerminalLine(''));
+export async function typeLine(text, speed = 25, cls = '') {
+    const line = appendTerminalNode(createTerminalLine('', cls));
 
     for (const character of text) {
         line.textContent += character;
@@ -193,6 +194,7 @@ export function printLine(text, cls = '') {
  */
 export function printDownloadButton(text, url) {
     const line = createTerminalLine('');
+    line.classList.add('t-reveal');
 
     const link = document.createElement('a');
     link.href = url;
@@ -236,6 +238,7 @@ export function renderUploadArea() {
     box.id = 'drop-zone';
     box.className = 'upload-zone';
     box.textContent = '[ === DRAG AND DROP result.csv HERE === ]';
+    box.classList.add('t-reveal');
     appendTerminalNode(box);
     printLine('');
     return box;
